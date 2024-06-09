@@ -16,7 +16,13 @@ const fetchQueryWithChildQueries = async (queryId: number) => {
 	if (queryStore.has(queryId)) return
 
 	console.info(`Fetching query ${queryId}...`)
-	const query = await client.query.readQuery(queryId)
+
+	const query = await client.query.readQuery(queryId).catch((err) => {
+		console.error(`Failed to fetch query ${queryId}: ${err.message}`)
+		return null
+	})
+	if (!query) return // Skip if query is null (.e.g. query does not exist, private query, etc.)
+
 	queryStore.set(queryId, query)
 
 	const childQueryIds =
